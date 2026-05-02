@@ -12,6 +12,7 @@ LOGFILE="${RUNBUG_LOG:-.runbug/log}"
 TAB=""
 WAIT_URL=""
 TIMEOUT=10
+PRINT_BODY=0
 
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -19,6 +20,7 @@ while [ $# -gt 0 ]; do
     --tab) TAB="$2"; shift 2 ;;
     --wait-url) WAIT_URL="$2"; shift 2 ;;
     --timeout) TIMEOUT="$2"; shift 2 ;;
+    --print-body) PRINT_BODY=1; shift ;;
     --) shift; break ;;
     --*) echo "do.sh: unknown arg: $1" >&2; exit 2 ;;
     *) break ;;
@@ -58,14 +60,19 @@ auto_pick_tab() {
 
 auto_pick_tab
 
-BODY=$(node -e "
-const target = { role: '$ROLE', accessibleName: \"$NAME\" };
-if ('$NTH'.length) target.nth = parseInt('$NTH', 10);
-const ev = { type: 'action', id: '$ID', target, action: '$ACTION' };
-if ('$VALUE'.length) ev.value = '$VALUE';
-if ('$TAB'.length) ev.targetTab = '$TAB';
-process.stdout.write(JSON.stringify(ev));
-")
+BODY=$(ROLE="$ROLE" NAME="$NAME" ACTION="$ACTION" VALUE="$VALUE" NTH="$NTH" ID="$ID" TAB="$TAB" node -e '
+  const target = { role: process.env.ROLE, accessibleName: process.env.NAME };
+  if (process.env.NTH) target.nth = parseInt(process.env.NTH, 10);
+  const ev = { type: "action", id: process.env.ID, target, action: process.env.ACTION };
+  if (process.env.VALUE) ev.value = process.env.VALUE;
+  if (process.env.TAB) ev.targetTab = process.env.TAB;
+  process.stdout.write(JSON.stringify(ev));
+')
+
+if [ "$PRINT_BODY" = "1" ]; then
+  printf '%s\n' "$BODY"
+  exit 0
+fi
 
 curl -sf -X POST -H 'content-type: application/json' -d "$BODY" "$BASE/runbug/commands" >/dev/null
 
