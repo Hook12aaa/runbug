@@ -205,6 +205,19 @@ test('configureFromEvent without watch_dom does not touch watcher', () => {
   assert.equal(calls.length, 0);
 });
 
+test('validateAxAddress errors carry code: invalid-address', () => {
+  try { validateAxAddress(null); assert.fail('should throw'); }
+  catch (e) { assert.equal(e.code, 'invalid-address'); }
+  try { validateAxAddress({ role: 'button', accessibleName: 'X', extra: 1 }); assert.fail('should throw'); }
+  catch (e) { assert.equal(e.code, 'invalid-address'); }
+  try { validateAxAddress({ role: '', accessibleName: 'X' }); assert.fail('should throw'); }
+  catch (e) { assert.equal(e.code, 'invalid-address'); }
+  try { validateAxAddress({ role: 'button', accessibleName: '' }); assert.fail('should throw'); }
+  catch (e) { assert.equal(e.code, 'invalid-address'); }
+  try { validateAxAddress({ role: 'button', accessibleName: 'X', nth: -1 }); assert.fail('should throw'); }
+  catch (e) { assert.equal(e.code, 'invalid-address'); }
+});
+
 test('configureFromEvent ignores unknown keys without throwing', () => {
   const calls = [];
   const shim = { setDomWatcherEvents: (arr) => calls.push(arr) };

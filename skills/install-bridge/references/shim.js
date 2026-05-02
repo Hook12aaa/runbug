@@ -44,24 +44,27 @@ export function createForwarder({ endpoint, fetch: fetchImpl, guard, tabId }) {
 const AX_ALLOWED = new Set(['role', 'accessibleName', 'nth']);
 
 export function validateAxAddress(addr) {
+  const fail = (msg) => {
+    const err = new Error(msg);
+    err.code = 'invalid-address';
+    throw err;
+  };
   if (!addr || typeof addr !== 'object' || Array.isArray(addr)) {
-    throw new Error('address must be an object');
+    fail('address must be an object');
   }
   for (const key of Object.keys(addr)) {
     if (!AX_ALLOWED.has(key)) {
-      throw new Error(
-        `address key "${key}" is not allowed — use {role, accessibleName, nth}`,
-      );
+      fail(`address key "${key}" is not allowed — use {role, accessibleName, nth}`);
     }
   }
   if (typeof addr.role !== 'string' || addr.role.length === 0) {
-    throw new Error('address.role is required and must be a non-empty string');
+    fail('address.role is required and must be a non-empty string');
   }
   if (typeof addr.accessibleName !== 'string' || addr.accessibleName.length === 0) {
-    throw new Error('address.accessibleName is required and must be a non-empty string');
+    fail('address.accessibleName is required and must be a non-empty string');
   }
   if ('nth' in addr && (!Number.isInteger(addr.nth) || addr.nth < 0)) {
-    throw new Error('address.nth must be a non-negative integer');
+    fail('address.nth must be a non-negative integer');
   }
   return true;
 }
