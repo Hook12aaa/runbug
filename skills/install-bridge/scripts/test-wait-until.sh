@@ -51,4 +51,23 @@ if ! echo "$out" | grep -q "timed out"; then
   exit 1
 fi
 
+# Case 4: predicate must match regardless of JSON key order (accessibleName before role).
+# Per ax-protocol.md the snapshot tree is JSON, not a wire-format with a fixed key order.
+cat > .runbug/log <<'EOF'
+{"type":"snapshot","ts":"2026-05-02T00:00:00.000Z","tree":[{"accessibleName":"Save","role":"button"}],"url":"http://localhost:5173/x"}
+EOF
+if ! sh "$SNAP_SH" --url http://127.0.0.1:1 --until-role button --until-name "Save" --timeout 1 >/dev/null 2>&1; then
+  echo "FAIL: case 4 (reversed key order: accessibleName before role) returned non-zero" >&2
+  exit 1
+fi
+
+# Case 5: predicate must recurse into children per ax-protocol.md:46.
+cat > .runbug/log <<'EOF'
+{"type":"snapshot","ts":"2026-05-02T00:00:00.000Z","tree":[{"role":"main","accessibleName":"Page","children":[{"role":"button","accessibleName":"Save"}]}],"url":"http://localhost:5173/x"}
+EOF
+if ! sh "$SNAP_SH" --url http://127.0.0.1:1 --until-role button --until-name "Save" --timeout 1 >/dev/null 2>&1; then
+  echo "FAIL: case 5 (predicate inside children) returned non-zero" >&2
+  exit 1
+fi
+
 echo "test-wait-until: PASS"

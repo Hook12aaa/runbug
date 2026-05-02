@@ -42,9 +42,11 @@ auto_pick_tab() {
 }
 
 post_request() {
-  body='{"type":"snapshot-request"'
-  if [ -n "$TAB" ]; then body="$body,\"targetTab\":\"$TAB\""; fi
-  body="$body}"
+  body=$(TAB="$TAB" node -e '
+    const ev = { type: "snapshot-request" };
+    if (process.env.TAB) ev.targetTab = process.env.TAB;
+    process.stdout.write(JSON.stringify(ev));
+  ')
   curl -sf -X POST -H 'content-type: application/json' \
     -d "$body" \
     "$BASE/runbug/commands" >/dev/null 2>&1 || true
@@ -54,17 +56,24 @@ predicate_matches() {
   if [ ! -f "$LOGFILE" ]; then return 1; fi
   latest=$(tail -n 100 "$LOGFILE" | grep '"type":"snapshot"' | tail -n 1)
   if [ -z "$latest" ]; then return 1; fi
-  if [ -n "$UNTIL_ROLE" ] && [ -n "$UNTIL_NAME" ]; then
-    printf '%s' "$latest" | grep -q "\"role\":\"$UNTIL_ROLE\",\"accessibleName\":\"$UNTIL_NAME\""
-    return $?
-  elif [ -n "$UNTIL_ROLE" ]; then
-    printf '%s' "$latest" | grep -q "\"role\":\"$UNTIL_ROLE\""
-    return $?
-  elif [ -n "$UNTIL_NAME" ]; then
-    printf '%s' "$latest" | grep -q "\"accessibleName\":\"$UNTIL_NAME\""
-    return $?
-  fi
-  return 0
+  if [ -z "$UNTIL_ROLE" ] && [ -z "$UNTIL_NAME" ]; then return 0; fi
+  UNTIL_ROLE="$UNTIL_ROLE" UNTIL_NAME="$UNTIL_NAME" SNAP="$latest" node -e '
+    let snap;
+    try { snap = JSON.parse(process.env.SNAP); } catch (e) { process.exit(1); }
+    const role = process.env.UNTIL_ROLE || null;
+    const name = process.env.UNTIL_NAME || null;
+    const walk = (nodes) => {
+      if (!Array.isArray(nodes)) return false;
+      for (const n of nodes) {
+        const roleOk = !role || n.role === role;
+        const nameOk = !name || n.accessibleName === name;
+        if (roleOk && nameOk) return true;
+        if (n.children && walk(n.children)) return true;
+      }
+      return false;
+    };
+    process.exit(walk(snap.tree) ? 0 : 1);
+  '
 }
 
 auto_pick_tab

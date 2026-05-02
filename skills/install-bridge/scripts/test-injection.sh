@@ -125,3 +125,17 @@ if [ "$EXIT_GAP" -ne 2 ]; then
 fi
 rm -f /tmp/runbug-injection-gap.out
 echo "PASS: capture.sh rejects non-integer --gap with exit 2"
+
+# snap.sh --tab: malicious tab id must not be executed.
+SNAP_SH="$SCRIPT_DIR/snap.sh"
+SNAP_LOG=$(mktemp -t runbug-snap-injection-XXXXXX) || { echo "FAIL: mktemp" >&2; exit 1; }
+trap "rm -f $SNAP_LOG" EXIT
+EXIT_SNAP=0
+RUNBUG_LOG="$SNAP_LOG" RUNBUG_URL="http://127.0.0.1:1" sh "$SNAP_SH" --tab "$PAYLOAD" --until-role button --timeout 1 >/dev/null 2>&1 || EXIT_SNAP=$?
+if [ "$EXIT_SNAP" -eq 99 ]; then
+  echo "FAIL: snap.sh exited 99 on malicious --tab — payload executed" >&2
+  exit 1
+fi
+echo "PASS: snap.sh --tab survives injection probe (exit $EXIT_SNAP, never 99)"
+
+echo "All injection tests passed (do.sh: 5 fields; capture.sh: --gap; snap.sh: --tab)"
