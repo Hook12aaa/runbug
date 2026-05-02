@@ -92,9 +92,11 @@ fi
 
 deadline=$(($(date +%s) + TIMEOUT))
 while [ "$(date +%s)" -lt "$deadline" ]; do
-  body='{"type":"snapshot-request"'
-  if [ -n "$TAB" ]; then body="$body,\"targetTab\":\"$TAB\""; fi
-  body="$body}"
+  body=$(TAB="$TAB" node -e '
+  const ev = { type: "snapshot-request" };
+  if (process.env.TAB) ev.targetTab = process.env.TAB;
+  process.stdout.write(JSON.stringify(ev));
+')
   curl -sf -X POST -H 'content-type: application/json' \
     -d "$body" \
     "$BASE/runbug/commands" >/dev/null 2>&1 || true
