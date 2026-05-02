@@ -44,12 +44,6 @@ Three hard gates the install enforces:
 
 Runbug owns the evidence surface. It does not own debugging methodology, TDD methodology, or pre-completion verification — those are owned by the `superpowers` plugin. Runbug has a hard dependency on superpowers: without it, a `READY` verdict has no consumer. Install superpowers first.
 
-## Status
-
-v1.3 (plugin `0.4.0`). Single-author, dogfooded against sibling projects in the same workspace (merch, stitch, courpse). Not yet stabilized for third-party adoption — the wire protocol and skill triggers are still moving with each version.
-
-See `CHANGELOG.md` for per-version detail.
-
 ## License
 
 MIT.
