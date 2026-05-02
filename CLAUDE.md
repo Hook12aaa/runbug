@@ -4,7 +4,7 @@ This file provides guidance to Claude Code when working in the runbug plugin rep
 
 ## Project Overview
 
-**Runbug** is a Claude Code plugin that ships three skills — `using-runbug`, `runbug-gate`, `install-bridge` — pure markdown with a plain-JS reference shim and POSIX shell verification scripts. Claude Code is the runtime. No Python engine, no Node runtime service, no bundled headless browser.
+**Runbug** is a Claude Code plugin that ships four skills — `using-runbug`, `runbug-gate`, `install-bridge`, and the callable `generate-fixtures` helper — pure markdown with a plain-JS reference shim and POSIX shell verification scripts. Claude Code is the runtime. No Python engine, no Node runtime service, no bundled headless browser.
 
 ## Hard dependency
 
@@ -16,13 +16,14 @@ Runbug depends on the `superpowers` plugin. Without superpowers loaded in the sa
 - `hooks/` — SessionStart hook bootstraps `using-runbug`
 - `.claude-plugin/` — plugin manifests
 
-## The three skills
+## The four skills
 
 | Skill | Role |
 |---|---|
 | using-runbug | Bootstrap. Declares triggers T1/T2/T3, the Playwright/browser-MCP deflection rule, and the hard dep on superpowers. |
 | runbug-gate | Fires at T1/T2/T3. Returns READY / INSTALL_NEEDED / REPAIR / EVIDENCE_MISSING / NOT_APPLICABLE / BLOCKED. |
 | install-bridge | Heavy skill. Installs the three-channel shim (console-forward / AX-snapshot / command-channel) in whatever stack is present. Enforces I1 (dev-only), I2 (loop guard), I3 (AX-addressable only). |
+| generate-fixtures | Callable helper. Intersects the current git diff with a live AX snapshot to produce `fixtures.ndjson` for capture runs. |
 
 ## Triggers (when runbug-gate fires)
 

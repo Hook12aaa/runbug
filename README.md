@@ -8,13 +8,13 @@ Claude Code is genuinely good at one half of the job: exposing problems in code 
 
 Frontend is the other half. When the runtime is the browser — Three.js, WebGL, Fabric.js, a client-side state machine, anything where the bug only shows up once the code is *running* and someone is *interacting* — reading the source isn't enough. Claude needs to actually drive the app to know whether a change worked. The default reflex for that is Playwright or Selenium: a second runtime, a second browser instance, and a token budget that gets eaten standing the harness up before a single assertion runs.
 
-Runbug exists to compress that loop. The premise is simple: the dev server is already running, the page is already mounted, and Claude is already the runtime for the conversation. The missing piece is a thin channel — console out, an accessibility-tree snapshot in, and a command pipe that addresses elements by `{role, name}` rather than CSS selectors. About 80 lines of dev-mode-only JS.
+Runbug exists to compress that loop. The premise is simple: the dev server is already running, the page is already mounted, and Claude is already the runtime for the conversation. The missing piece is a thin channel — console out, an accessibility-tree snapshot in, and a command pipe that addresses elements by `{role, name}` rather than CSS selectors. Dev-mode-only JS, no production footprint.
 
 The result is a faster proof-of-concept and validation loop for ideas built with Claude Code: fewer tokens per interaction, no second browser, and the agent can move around the app under test instead of guessing whether its fix landed.
 
 ## What it is
 
-Three skills, one reference shim, a small set of POSIX-sh verification scripts. Claude Code is the runtime — most of the surface is markdown.
+Four skills, one reference shim, a small set of POSIX-sh verification scripts. Claude Code is the runtime — most of the surface is markdown.
 
 | Surface | Role |
 |---|---|
@@ -22,7 +22,7 @@ Three skills, one reference shim, a small set of POSIX-sh verification scripts. 
 | `runbug-gate` | Pre-handoff gate. Fires before interaction debugging, before UI tests, and before "frontend is done." Returns READY / INSTALL_NEEDED / REPAIR / EVIDENCE_MISSING / NOT_APPLICABLE / BLOCKED. |
 | `install-bridge` | Installs the three-channel shim into the target project: console-forward, AX-snapshot, command-channel. Dev-mode only, with a loop guard, AX-addressable only. |
 | `generate-fixtures` | Callable helper. Intersects the current git diff with a live AX snapshot to produce `fixtures.ndjson` for capture runs. |
-| `shim.js` (reference) | ~80 lines of plain JS. Stack adapters (Vite, Next, etc.) reduce to thin wrappers around this. |
+| `shim.js` (reference) | Plain JS, no dependencies. Stack adapters (Vite, Next, etc.) reduce to thin wrappers around this. |
 
 ## Triggers
 

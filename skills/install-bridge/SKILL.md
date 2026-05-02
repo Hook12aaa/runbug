@@ -33,7 +33,7 @@ Three channels, one protocol, zero runtime dependencies:
 2. **AX-snapshot** — on demand, shim emits a pruned accessibility tree
 3. **Command-channel** — backend pushes AX-addressed interactions; shim dispatches synthetic events
 
-The shim is plain JS (~80 lines), lifted and adapted from `references/shim.js`. The backend endpoint is written in whatever language the target uses. The transport (SSE, WebSocket, polling) is chosen per stack; the payload schema is fixed.
+The shim is plain JS, lifted and adapted from `references/shim.js`. The backend endpoint is written in whatever language the target uses. The transport (SSE, WebSocket, polling) is chosen per stack; the payload schema is fixed.
 
 ## Process Flow
 
