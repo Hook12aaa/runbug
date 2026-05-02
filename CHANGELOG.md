@@ -1,5 +1,42 @@
 # Runbug Changelog
 
+## 0.4.1 — 2026-05-02 (build-quality fixes)
+
+Closes the five concrete defects from the 2026-05-02 build-quality benchmark, expanded to fully close every same-class injection vector across `do.sh` / `capture.sh` / `snap.sh`, plus the doc inaccuracies the benchmark surfaced.
+
+### Fixed
+
+- **`do.sh` shell injection** (RCE-class). ROLE / NAME / ACTION / VALUE / NTH / ID / TAB now passed via env vars to `node -e '...'` (single-quoted), not interpolated into a heredoc. New `--print-body` flag enables server-independent regression testing.
+- **`do.sh` `--tab` JSON injection** in `--wait-url` polling body — same pattern, lower severity (no RCE), now closed via env-var passing.
+- **`capture.sh` `--gap` shell injection** in `node -e "...$GAP_MS..."`. Validated as a non-negative integer at flag-parse time (also covers `RUNBUG_GAP` env var).
+- **`capture.sh` `$TAB` JSON injection** in 3 sites (`cleanup()`, WATCH_DOM activate, snapshot-request). All replaced with `body=$(TAB="$TAB" node -e '...')` env-var passing.
+- **`snap.sh` `predicate_matches` JSON-key-order coupling**. Replaced `grep -q` against raw JSON with `JSON.parse` + recursive `tree`/`children` walk.
+- **`snap.sh` `post_request` `$TAB` JSON injection** — same env-var passing as `do.sh`/`capture.sh`.
+- **`shim.js` `dispatchAction` error code propagation**. `validateAxAddress` errors now carry `code: 'invalid-address'`; `resolveAx` call moved inside the try/catch so all four protocol error codes (`invalid-address`, `no-match`, `multiple-matches-need-nth`, `action-threw`) reach the action-result envelope.
+- **README / `install-bridge/SKILL.md` "~80 lines" claim** — shim is actually 247 lines. Replaced with claim-light language.
+- **`CLAUDE.md` skill count** "three" → "four" (added `generate-fixtures`); fixed both the opening line and the `## The four skills` section heading + table.
+- **`README.md` "What it is" prose** — "Three skills..." → "Four skills..." for consistency with the table directly below.
+- **`skills/using-runbug/SKILL.md` Available Skills table** — added the missing `generate-fixtures` row; previously only listed `runbug-gate` and `install-bridge`, contradicting the top-level docs.
+
+### Added
+
+- `skills/install-bridge/scripts/test-injection.sh` — regression test asserting malicious payloads survive as data, not code, across 7 fields: `do.sh` NAME / ROLE / ACTION / VALUE / `--tab`; `capture.sh` `--gap`; `snap.sh` `--tab`.
+- `skills/install-bridge/references/package.json` + `package-lock.json` — test-only dev-dep manifest scoped to the references directory. `"private": true`, `"type": "module"`, `jsdom` as a dev-dep. The lifted shim itself stays dependency-free.
+- 5 new `dispatchAction` tests in `shim.test.js` covering each protocol error code plus the happy-path action-result.
+- 2 new `test-wait-until.sh` cases: predicate match against reversed JSON key order; predicate match inside a nested `children` array.
+
+### Changed
+
+- Plugin version 0.4.0 → 0.4.1 (manifest + marketplace).
+
+### Deferred to v1.4 (tracked from v0.4.1 reviews)
+
+- `capture.sh` `sh -c "$RUNBUG_BROWSER '$BASE'"` — closes user-controlled shell injection on `RUNBUG_BROWSER` + `--url`.
+- `capture.sh` `--wait` integer validation, matching the `--gap` shape.
+- `snap.sh` `predicate_matches` recursion depth guard (theoretical hostile-snapshot stack overflow).
+- `snap.sh` `predicate_matches` JSON.parse error surfacing — currently silent per memory `feedback_dev_mode_error_surfacing.md` ("dev-mode tools surface errors loudly").
+- Multi-tab phantom-tabId issue from v1.3 dogfood (`capture.sh` refusing to start when multiple shims alive without `--tab`) — already on the v1.4 list.
+
 ## 0.4.0 — 2026-04-23 (v1.3)
 
 `--wait-*` predicates kill the fixed-sleep pain. Multi-tab `tabId` routing closes the broadcast-confusion gap from the v1.2 dogfood. `prune-log.sh` for opt-in log retention. Drop boolean `watch_dom` (deprecated in v1.2). Modifier-key forwarding on `keydown`.

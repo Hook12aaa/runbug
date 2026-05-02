@@ -9,7 +9,7 @@
     {
       "name": "runbug",
       "description": "Pre-handoff gate + three-channel console bridge for debugging interaction-triggered frontend bugs. Composes with superpowers. Hard dependency on superpowers plugin.",
-      "version": "0.4.0",
+      "version": "0.4.1",
       "category": "development",
       "source": "./",
       "keywords": [
