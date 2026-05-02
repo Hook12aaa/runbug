@@ -108,3 +108,20 @@ if ! printf '%s' "$BODY_TAB" | PAYLOAD="$PAYLOAD" node -e '
 fi
 
 echo "PASS: do.sh treats all user-controlled fields as data (NAME, ROLE, ACTION, VALUE, --tab)"
+
+# capture.sh: --gap must reject non-integer values at flag-parse time.
+CAPTURE_SH="$SCRIPT_DIR/capture.sh"
+EXIT_GAP=0
+sh "$CAPTURE_SH" --gap '0); process.exit(99); //' >/tmp/runbug-injection-gap.out 2>&1 || EXIT_GAP=$?
+if [ "$EXIT_GAP" -eq 99 ]; then
+  echo "FAIL: capture.sh --gap injection executed (exit 99)" >&2
+  cat /tmp/runbug-injection-gap.out >&2
+  exit 1
+fi
+if [ "$EXIT_GAP" -ne 2 ]; then
+  echo "FAIL: capture.sh --gap should exit 2 on non-integer, got $EXIT_GAP" >&2
+  cat /tmp/runbug-injection-gap.out >&2
+  exit 1
+fi
+rm -f /tmp/runbug-injection-gap.out
+echo "PASS: capture.sh rejects non-integer --gap with exit 2"

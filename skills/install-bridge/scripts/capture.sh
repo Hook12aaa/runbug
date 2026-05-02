@@ -33,6 +33,13 @@ while [ $# -gt 0 ]; do
   esac
 done
 
+case "$GAP_MS" in
+  ''|*[!0-9]*)
+    echo "capture: --gap must be a non-negative integer (got: '$GAP_MS')" >&2
+    exit 2
+    ;;
+esac
+
 prune_captures() {
   if [ -z "${KEEP_LAST:-}" ]; then return 0; fi
   case "$KEEP_LAST" in
@@ -69,9 +76,11 @@ TAIL_PID=""
 
 cleanup() {
   if [ "$WATCH_DOM" = "1" ]; then
-    body='{"type":"configure","watch_dom":[]'
-    if [ -n "$TAB" ]; then body="$body,\"targetTab\":\"$TAB\""; fi
-    body="$body}"
+    body=$(TAB="$TAB" node -e '
+  const ev = { type: "configure", watch_dom: [] };
+  if (process.env.TAB) ev.targetTab = process.env.TAB;
+  process.stdout.write(JSON.stringify(ev));
+')
     curl -sf -X POST -H 'content-type: application/json' \
       -d "$body" \
       "$BASE/runbug/commands" >/dev/null 2>&1 || true
@@ -133,9 +142,11 @@ wait_for_shim_ready
 TAIL_PID=$!
 
 if [ "$WATCH_DOM" = "1" ]; then
-  body='{"type":"configure","watch_dom":["click","submit"]'
-  if [ -n "$TAB" ]; then body="$body,\"targetTab\":\"$TAB\""; fi
-  body="$body}"
+  body=$(TAB="$TAB" node -e '
+  const ev = { type: "configure", watch_dom: ["click", "submit"] };
+  if (process.env.TAB) ev.targetTab = process.env.TAB;
+  process.stdout.write(JSON.stringify(ev));
+')
   curl -sf -X POST -H 'content-type: application/json' \
     -d "$body" \
     "$BASE/runbug/commands" >/dev/null
@@ -156,9 +167,11 @@ if [ -n "$FIXTURES" ]; then
   done < "$FIXTURES"
 fi
 
-body='{"type":"snapshot-request"'
-if [ -n "$TAB" ]; then body="$body,\"targetTab\":\"$TAB\""; fi
-body="$body}"
+body=$(TAB="$TAB" node -e '
+  const ev = { type: "snapshot-request" };
+  if (process.env.TAB) ev.targetTab = process.env.TAB;
+  process.stdout.write(JSON.stringify(ev));
+')
 curl -sf -X POST -H 'content-type: application/json' \
   -d "$body" \
   "$BASE/runbug/commands" >/dev/null
