@@ -43,6 +43,7 @@ The gate must NOT fire on (and should quickly NOT_APPLICABLE if it does):
 |---|---|---|
 | `runbug-gate` | T1 / T2 / T3 | Returns READY / INSTALL_NEEDED / REPAIR / EVIDENCE_MISSING / NOT_APPLICABLE / BLOCKED. Routes to `install-bridge` when bridge is missing or broken. |
 | `install-bridge` | Invoked by runbug-gate on INSTALL_NEEDED or REPAIR | Builds the three-channel shim (console-forward / AX-snapshot / command-channel) into the target project. Enforces I1 (dev-only), I2 (loop guard), I3 (AX-addressable only). |
+| `generate-fixtures` | Invoked by runbug-gate on EVIDENCE_MISSING when dev server + frontend git diff present | Intersects the git diff with a live AX snapshot to emit `fixtures.ndjson` for capture runs. Fail-open when signal is weak. |
 
 ## Core Principles
 
