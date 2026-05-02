@@ -13,7 +13,7 @@ Closes the five concrete defects from the 2026-05-02 build-quality benchmark, ex
 - **`snap.sh` `predicate_matches` JSON-key-order coupling**. Replaced `grep -q` against raw JSON with `JSON.parse` + recursive `tree`/`children` walk.
 - **`snap.sh` `post_request` `$TAB` JSON injection** — same env-var passing as `do.sh`/`capture.sh`.
 - **`shim.js` `dispatchAction` error code propagation**. `validateAxAddress` errors now carry `code: 'invalid-address'`; `resolveAx` call moved inside the try/catch so all four protocol error codes (`invalid-address`, `no-match`, `multiple-matches-need-nth`, `action-threw`) reach the action-result envelope.
-- **README / `install-bridge/SKILL.md` "~80 lines" claim** — shim is actually 247 lines. Replaced with claim-light language.
+- **README / `install-bridge/SKILL.md` "~80 lines" claim** — shim is actually ~250 lines. Replaced with claim-light language.
 - **`CLAUDE.md` skill count** "three" → "four" (added `generate-fixtures`); fixed both the opening line and the `## The four skills` section heading + table.
 - **`README.md` "What it is" prose** — "Three skills..." → "Four skills..." for consistency with the table directly below.
 - **`skills/using-runbug/SKILL.md` Available Skills table** — added the missing `generate-fixtures` row; previously only listed `runbug-gate` and `install-bridge`, contradicting the top-level docs.

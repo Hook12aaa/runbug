@@ -138,4 +138,15 @@ if [ "$EXIT_SNAP" -eq 99 ]; then
 fi
 echo "PASS: snap.sh --tab survives injection probe (exit $EXIT_SNAP, never 99)"
 
-echo "All injection tests passed (do.sh: 5 fields; capture.sh: --gap; snap.sh: --tab)"
+# capture.sh --tab: malicious tab id must not be executed.
+CAPTURE_LOG=$(mktemp -t runbug-capture-injection-XXXXXX) || { echo "FAIL: mktemp" >&2; exit 1; }
+trap "rm -f $SNAP_LOG $CAPTURE_LOG" EXIT
+EXIT_CAPTURE=0
+RUNBUG_LOG="$CAPTURE_LOG" RUNBUG_URL="http://127.0.0.1:1" sh "$CAPTURE_SH" --tab "$PAYLOAD" --wait 1 --gap 0 --headless >/dev/null 2>&1 || EXIT_CAPTURE=$?
+if [ "$EXIT_CAPTURE" -eq 99 ]; then
+  echo "FAIL: capture.sh exited 99 on malicious --tab — payload executed" >&2
+  exit 1
+fi
+echo "PASS: capture.sh --tab survives injection probe (exit $EXIT_CAPTURE, never 99)"
+
+echo "All injection tests passed (do.sh: 5 fields; capture.sh: --gap, --tab; snap.sh: --tab)"
