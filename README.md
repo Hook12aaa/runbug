@@ -44,6 +44,17 @@ Three hard gates the install enforces:
 
 Runbug owns the evidence surface. It does not own debugging methodology, TDD methodology, or pre-completion verification — those are owned by the `superpowers` plugin. Runbug has a hard dependency on superpowers: without it, a `READY` verdict has no consumer. Install superpowers first.
 
+## Install
+
+In Claude Code:
+
+```
+/plugin marketplace add Hook12aaa/runbug
+/plugin install runbug@runbug
+```
+
+Install [`superpowers`](https://github.com/obra/superpowers) first — runbug-gate's READY verdict has nowhere to hand off without it.
+
 ## License
 
 MIT.
