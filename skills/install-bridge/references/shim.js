@@ -98,8 +98,8 @@ export function resolveAx(address, root) {
 }
 
 export async function dispatchAction(action, root) {
-  const el = resolveAx(action.target, root);
   try {
+    const el = resolveAx(action.target, root);
     if (action.action === 'click') {
       el.click();
     } else if (action.action === 'input') {

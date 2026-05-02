@@ -465,3 +465,60 @@ test('shouldHandleEvent: matching targetTab returns true', () => {
 test('shouldHandleEvent: non-matching targetTab returns false', () => {
   assert.equal(shouldHandleEvent({ type: 'configure', targetTab: 'tab-other' }, 'tab-abc'), false);
 });
+
+import { JSDOM } from 'jsdom';
+
+function makeDom(html) {
+  return new JSDOM(html).window.document;
+}
+
+test('dispatchAction returns invalid-address on bad target', async () => {
+  const doc = makeDom('<button>Hi</button>');
+  const result = await shim.dispatchAction(
+    { id: 'a1', target: { role: 'button' }, action: 'click' },
+    doc,
+  );
+  assert.equal(result.ok, false);
+  assert.equal(result.error, 'invalid-address');
+});
+
+test('dispatchAction returns no-match when nothing matches', async () => {
+  const doc = makeDom('<button>Hi</button>');
+  const result = await shim.dispatchAction(
+    { id: 'a2', target: { role: 'button', accessibleName: 'Bye' }, action: 'click' },
+    doc,
+  );
+  assert.equal(result.ok, false);
+  assert.equal(result.error, 'no-match');
+});
+
+test('dispatchAction returns multiple-matches-need-nth', async () => {
+  const doc = makeDom('<button>Go</button><button>Go</button>');
+  const result = await shim.dispatchAction(
+    { id: 'a3', target: { role: 'button', accessibleName: 'Go' }, action: 'click' },
+    doc,
+  );
+  assert.equal(result.ok, false);
+  assert.equal(result.error, 'multiple-matches-need-nth');
+});
+
+test('dispatchAction returns action-threw on unknown action', async () => {
+  const doc = makeDom('<button>Hi</button>');
+  const result = await shim.dispatchAction(
+    { id: 'a4', target: { role: 'button', accessibleName: 'Hi' }, action: 'teleport' },
+    doc,
+  );
+  assert.equal(result.ok, false);
+  assert.equal(result.error, 'action-threw');
+});
+
+test('dispatchAction returns ok:true on a clean click', async () => {
+  const doc = makeDom('<button>Hi</button>');
+  const result = await shim.dispatchAction(
+    { id: 'a5', target: { role: 'button', accessibleName: 'Hi' }, action: 'click' },
+    doc,
+  );
+  assert.equal(result.ok, true);
+  assert.equal(result.resolvedRole, 'button');
+  assert.equal(result.resolvedAccessibleName, 'Hi');
+});
