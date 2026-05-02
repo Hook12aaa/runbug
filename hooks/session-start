@@ -1,0 +1,10 @@
+#!/bin/sh
+# Runbug SessionStart hook.
+# Emits the using-runbug bootstrap notice so Claude loads the skill early in the session.
+# Kept minimal — model_trainer's session-start is the reference shape.
+
+cat <<'EOF'
+Runbug plugin active. The using-runbug skill will trigger on any frontend interaction concern.
+Triggers: T1 (systematic-debugging on interaction bug), T2 (TDD on UI test), T3 (pre-handoff to user).
+Hard dependency on superpowers — ensure superpowers is also loaded.
+EOF

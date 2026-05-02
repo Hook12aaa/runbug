@@ -1,0 +1,25 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "runbug",
+  "description": "Marketplace for the Runbug Claude Code plugin.",
+  "owner": {
+    "name": "hook"
+  },
+  "plugins": [
+    {
+      "name": "runbug",
+      "description": "Pre-handoff gate + three-channel console bridge for debugging interaction-triggered frontend bugs. Composes with superpowers. Hard dependency on superpowers plugin.",
+      "version": "0.4.0",
+      "category": "development",
+      "source": "./",
+      "keywords": [
+        "frontend",
+        "debugging",
+        "accessibility",
+        "superpowers-dependency",
+        "console-bridge",
+        "runtime-bugs"
+      ]
+    }
+  ]
+}

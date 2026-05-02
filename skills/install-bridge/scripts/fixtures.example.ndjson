@@ -1,0 +1,4 @@
+{"__comment":"One action per line. Lines with only __comment are skipped. Required fields per line: type, id, target, action. Optional: value, nth."}
+{"type":"action","id":"open-dialog","target":{"role":"button","accessibleName":"Add text"},"action":"click"}
+{"type":"action","id":"fill-name","target":{"role":"textbox","accessibleName":"Your name"},"action":"input","value":"Hello"}
+{"type":"action","id":"submit","target":{"role":"button","accessibleName":"Submit"},"action":"click"}

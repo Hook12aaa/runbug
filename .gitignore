@@ -1,0 +1,17 @@
+# OS
+.DS_Store
+
+# Editor
+.vscode/
+.idea/
+
+# Runbug runtime artifacts (when runbug is installed in target projects)
+.runbug/
+
+# Node (for potential shim test runs)
+node_modules/
+
+# Internal working docs (not for public repo)
+docs/superpowers/
+runbug-project-report.md
+runbug-project-report.pdf
